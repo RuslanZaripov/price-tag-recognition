@@ -1,0 +1,15 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+numpy==1.26.4
+transformers==5.0.0
+torchvision==0.15.1
+torch==2.10.0 
+torchvision==0.25.0 
+torchaudio==2.10.0
+ultralytics==8.4.51
+bitsandbytes>=0.46.1
+torchao==0.17.0
+opencv-python==4.13.0.92
+gdown
+loguru
+matplotlib
+pandas

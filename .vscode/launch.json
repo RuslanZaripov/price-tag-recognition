@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: demo_track.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/price-tag-recognition/demo_track.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--video_path", 
+                "${workspaceFolder}/price-tag-recognition/Доступно участникам/Данные/25_12-20/25_12-20.mp4",
+                "--ckpt", 
+                "${workspaceFolder}/price-tag-recognition/weights/yolo/best.pt",
+                "--csv_out_path", 
+                "${workspaceFolder}/price-tag-recognition/result.csv",
+            ],
+            "justMyCode": false
+        }
+    ]
+}
