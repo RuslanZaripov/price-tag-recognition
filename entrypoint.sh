@@ -8,12 +8,8 @@ cd /workspace
 data_dir="/workspace/data"
 weights_dir="/workspace/weights"
 
-git clone https://github.com/RuslanZaripov/price-tag-recognition.git
-cd price-tag-recognition
-
 # clone YOLO weights
-git clone https://huggingface.co/openfoodfacts/price-tag-detection \
-    -O "$weights_dir/yolo"
+git clone https://huggingface.co/openfoodfacts/price-tag-detection "$weights_dir/yolo"
 
 # download data
 gdown --folder --fuzzy \

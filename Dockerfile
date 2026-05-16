@@ -4,8 +4,15 @@ WORKDIR /workspace
 
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libxcb1
 
-RUN chmod +x entrypoint.sh
+RUN pip install --no-cache-dir -r /workspace/requirements.txt
 
-ENTRYPOINT ["./entrypoint.sh"]
+RUN chmod +x /workspace/entrypoint.sh
+
+CMD [ "/bin/bash" ]

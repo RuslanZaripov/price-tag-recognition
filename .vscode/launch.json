@@ -8,15 +8,15 @@
             "name": "Python Debugger: demo_track.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/price-tag-recognition/demo_track.py",
+            "program": "${workspaceFolder}/price_tag_recognition/demo_track.py",
             "console": "integratedTerminal",
             "args": [
                 "--video_path", 
-                "${workspaceFolder}/price-tag-recognition/Доступно участникам/Данные/25_12-20/25_12-20.mp4",
+                "${workspaceFolder}/data/Данные/25_12-20/25_12-20.mp4",
                 "--ckpt", 
-                "${workspaceFolder}/price-tag-recognition/weights/yolo/best.pt",
+                "${workspaceFolder}/weights/yolo/best.pt",
                 "--csv_out_path", 
-                "${workspaceFolder}/price-tag-recognition/result.csv",
+                "${workspaceFolder}/result.csv",
             ],
             "justMyCode": false
         }
