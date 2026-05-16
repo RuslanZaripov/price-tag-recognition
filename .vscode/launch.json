@@ -14,9 +14,11 @@
                 "--video_path", 
                 "${workspaceFolder}/data/Данные/25_12-20/25_12-20.mp4",
                 "--ckpt", 
-                "${workspaceFolder}/weights/yolo/best.pt",
-                "--csv_out_path", 
-                "${workspaceFolder}/result.csv",
+                "${workspaceFolder}/weights/yolo/weights/best.pt",
+                "--out_path", 
+                "${workspaceFolder}/result.mp4",
+                "--rotate",
+                "--use_byte"
             ],
             "justMyCode": false
         }

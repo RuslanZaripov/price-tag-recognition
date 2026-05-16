@@ -7,6 +7,12 @@ import numpy as np
 from loguru import logger
 from ultralytics import YOLO
 
+import sys
+import os
+path = os.path.dirname(os.path.dirname(__file__))
+logger.info(f"Adding {path} to sys.path")
+sys.path.append(path)
+
 from price_tag_recognition.vlm_inference import run_vlm_batch, initialize_vlm
 from price_tag_recognition.utils.visualize import plot_tracking
 from trackers.ocsort_tracker.ocsort import OCSort
@@ -26,6 +32,7 @@ def crop_quality(img):
 
 class YOLOPredictor:
     def __init__(self, model_path, device="cpu", conf=0.1, rotate=False):
+        logger.info(f"Loading YOLO model from {model_path} on device {device}")
         self.model = YOLO(model_path)
         self.device = device
         self.conf = conf
@@ -202,7 +209,7 @@ def imageflow_demo(predictor, args):
         batch_size=8
     )
 
-    output_csv = args.csv_out_path or 'result.csv'
+    output_csv = 'result.csv'
 
     with open(output_csv, "w", newline="") as f:
         writer = csv.writer(f)
@@ -230,7 +237,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", type=str, required=True)
     parser.add_argument("--video_path", type=str, required=True)
-    parser.add_argument("--csv_out_path", type=str, default=None)
+    parser.add_argument("--out_path", type=str, default=None)
     parser.add_argument("--conf", type=float, default=0.1)
     parser.add_argument("--track_thresh", type=float, default=0.5)
     parser.add_argument("--iou_thresh", type=float, default=0.3)

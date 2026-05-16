@@ -9,6 +9,7 @@ data_dir="/workspace/data"
 weights_dir="/workspace/weights"
 
 # clone YOLO weights
+git lfs install
 git clone https://huggingface.co/openfoodfacts/price-tag-detection "$weights_dir/yolo"
 
 # download data
