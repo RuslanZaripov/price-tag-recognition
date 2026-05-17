@@ -1,9 +1,9 @@
 import json
 import torch
 import requests
-from peft import PeftModel
 from price_tag_recognition.parse_json import extract_json
 from transformers import AutoProcessor, AutoModelForImageTextToText
+from peft import PeftModel
 
 
 def initialize_vlm(device="cpu"):
@@ -12,14 +12,17 @@ def initialize_vlm(device="cpu"):
 
     processor = AutoProcessor.from_pretrained(base_id)
 
-    max_memory = {0: "14GiB", 1: "14GiB", "cpu": "30GiB"}
-
     base_model = AutoModelForImageTextToText.from_pretrained(
-        base_id, torch_dtype=torch.float16, device_map="auto", max_memory=max_memory
+        base_id, 
+        torch_dtype=torch.float16, 
+        device_map="auto"
     )
 
-    model = PeftModel.from_pretrained(base_model, lora_id, autocast_adapter_dtype=False)
-
+    model = PeftModel.from_pretrained(
+        model=base_model,
+        model_id=lora_id,
+        autocast_adapter_dtype=False
+    )
     model.eval()
 
     return model, processor
@@ -65,14 +68,12 @@ def run_vlm_batch(images, model, processor, batch_size=8):
             for m in messages_batch
         ]
 
-        # Tokenize (BATCH!)
         inputs = processor(
             text=prompts, images=batch_imgs, return_tensors="pt", padding=True
         )
 
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
-        # Generate
         with torch.no_grad():
             outputs = model.generate(**inputs, max_new_tokens=256)
 

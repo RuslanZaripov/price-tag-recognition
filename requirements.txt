@@ -1,12 +1,10 @@
 numpy
-transformers==4.51.1
-peft==0.10.0
+transformers
 ultralytics==8.4.51
 bitsandbytes>=0.46.1
-torchao==0.17.0
 opencv-python==4.13.0.92
 gdown==5.2.1
 loguru
 matplotlib
 pandas
-filterpy
+peft
