@@ -41,9 +41,6 @@ class YOLOPredictor:
     def inference(self, frame, timer):
         height, width = frame.shape[:2]
 
-        if self.rotate:
-            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
         timer.tic()
 
         results = self.model.predict(
@@ -132,6 +129,11 @@ def imageflow_demo(predictor, args):
         ret, frame = cap.read()
         if not ret:
             break
+
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        if args.rotate:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
         outputs, img_info = predictor.inference(frame, timer)
 

@@ -4,7 +4,9 @@ import requests
 from price_tag_recognition.parse_json import extract_json
 from transformers import AutoProcessor, AutoModelForImageTextToText
 from peft import PeftModel
+from PIL import Image
 from tqdm import tqdm
+import numpy as np
 
 
 def initialize_vlm(device="cpu"):
@@ -49,6 +51,12 @@ def run_vlm_batch(images, model, processor, batch_size=1):
     for i in tqdm(range(0, len(images), batch_size)):
         batch_imgs = images[i:i+batch_size]
 
+        # convert images to PIL format if they are numpy arrays
+        batch_imgs = [
+            Image.fromarray(img) 
+            if isinstance(img, (np.ndarray, torch.Tensor)) else img 
+            for img in batch_imgs]
+
         # Build messages per image
         messages_batch = []
         for img in batch_imgs:
@@ -84,8 +92,9 @@ def run_vlm_batch(images, model, processor, batch_size=1):
         parsed_batch = []
 
         for text in decoded:
-            parsed = list(extract_json(text))
-            parsed_batch.append(parsed if parsed else text)
+            if "assistant" in text:
+                text = text.split("assistant")[-1].strip()
+            parsed_batch.append(text)
 
         results.extend(parsed_batch)
 
