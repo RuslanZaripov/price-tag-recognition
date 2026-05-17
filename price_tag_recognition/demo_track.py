@@ -206,7 +206,7 @@ def imageflow_demo(predictor, args):
         images,
         vlm_model,
         vlm_processor,
-        batch_size=8
+        batch_size=1
     )
 
     output_csv = 'result.csv'

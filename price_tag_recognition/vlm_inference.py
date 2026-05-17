@@ -4,6 +4,7 @@ import requests
 from price_tag_recognition.parse_json import extract_json
 from transformers import AutoProcessor, AutoModelForImageTextToText
 from peft import PeftModel
+from tqdm import tqdm
 
 
 def initialize_vlm(device="cpu"):
@@ -15,7 +16,8 @@ def initialize_vlm(device="cpu"):
     base_model = AutoModelForImageTextToText.from_pretrained(
         base_id, 
         torch_dtype=torch.float16, 
-        device_map="auto"
+        device_map="auto",
+        max_memory={0: "10GB", 1: "10GB", "cpu": "16GB"}
     )
 
     model = PeftModel.from_pretrained(
@@ -39,13 +41,13 @@ def get_prompt():
     return full_instructions
 
 
-def run_vlm_batch(images, model, processor, batch_size=8):
+def run_vlm_batch(images, model, processor, batch_size=1):
     results = []
 
     full_instructions = get_prompt()
 
-    for i in range(0, len(images), batch_size):
-        batch_imgs = images[i : i + batch_size]
+    for i in tqdm(range(0, len(images), batch_size)):
+        batch_imgs = images[i:i+batch_size]
 
         # Build messages per image
         messages_batch = []
@@ -74,8 +76,8 @@ def run_vlm_batch(images, model, processor, batch_size=8):
 
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
-        with torch.no_grad():
-            outputs = model.generate(**inputs, max_new_tokens=256)
+        with torch.no_grad(), torch.amp.autocast(model.device.type):
+            outputs = model.generate(**inputs, max_new_tokens=64, do_sample=False, use_cache=True)
 
         decoded = processor.batch_decode(outputs, skip_special_tokens=True)
 

@@ -8,3 +8,5 @@ loguru
 matplotlib
 pandas
 peft
+filterpy
+tqdm
