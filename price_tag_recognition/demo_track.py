@@ -6,6 +6,7 @@ import numpy as np
 
 from loguru import logger
 from ultralytics import YOLO
+from tqdm import tqdm
 
 import sys
 import os
@@ -19,7 +20,7 @@ from trackers.ocsort_tracker.ocsort import OCSort
 from trackers.tracking_utils.timer import Timer
 
 from price_tag_recognition.undistort import DistortionCorrector, CAM_SETTINGS, CAM_DISTORT_COEFFS
-
+from price_tag_recognition.image_processing import detect_qr_code, extract_qr_code, post_processing
 
 def crop_quality(img):
     if img is None or img.size == 0:
@@ -214,8 +215,9 @@ def imageflow_demo(predictor, args):
 
     ids = []
     images = []
+    qr_results = []
 
-    for tid, (_, crop) in best_crops.items():
+    for tid, (_, crop) in tqdm(best_crops.items(), desc="Processing crops and qrs"):
         if crop is None:
             continue
         
@@ -224,6 +226,7 @@ def imageflow_demo(predictor, args):
 
         ids.append(tid)
         images.append(crop)
+        qr_results.append(parse_qr_code(crop))
 
     texts = run_vlm_batch(
         images,
@@ -232,14 +235,49 @@ def imageflow_demo(predictor, args):
         batch_size=1
     )
 
-    output_csv = 'result.csv'
+    output_csv = "result.csv"
 
-    with open(output_csv, "w", newline="") as f:
+    with open(output_csv, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["id", "text"])
+        writer.writerow(["id", "text", "qr_code_data", "qr_error"])
 
-        for tid, text in zip(ids, texts):
-            writer.writerow([tid, text])
+        for tid, text, qr in zip(ids, texts, qr_results):
+            writer.writerow([
+                tid,
+                text,
+                qr.get("qr_code_data"),
+                qr.get("qr_error")
+            ])
+
+
+def parse_qr_code(frame):
+    try:
+        # Detect the QR code in the image
+        qr_code_normal = detect_qr_code(frame)
+
+        # Extract the QR code
+        qr_code = extract_qr_code(qr_code_normal)
+
+        # Post processing
+        output_qr = post_processing(qr_code)
+
+        # Decode the QR code using pyzbar
+        decoder = cv2.QRCodeDetector()
+        data, _, _ = decoder.detectAndDecode(output_qr)
+
+        # Create the header
+        result = result = {
+            "qr_code_data": data,
+            "qr_error": None
+        }
+    except Exception as e:
+        logger.exception("QR code parsing failed")
+        result = result = {
+            "qr_code_data": None,
+            "qr_error": str(e)
+        }
+
+    return result
 
 
 def main(args):
