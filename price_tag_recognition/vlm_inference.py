@@ -19,7 +19,6 @@ def initialize_vlm(device="cpu"):
         base_id, 
         torch_dtype=torch.float16, 
         device_map="auto",
-        max_memory={0: "10GB", 1: "10GB", "cpu": "16GB"}
     )
 
     model = PeftModel.from_pretrained(
@@ -85,7 +84,13 @@ def run_vlm_batch(images, model, processor, batch_size=1):
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
         with torch.no_grad(), torch.amp.autocast(model.device.type):
-            outputs = model.generate(**inputs, max_new_tokens=64, do_sample=False, use_cache=True)
+            outputs = model.generate(
+                **inputs, 
+                max_new_tokens=512,
+                do_sample=False,
+                temperature=0.0,
+                eos_token_id=processor.tokenizer.eos_token_id,
+            )
 
         decoded = processor.batch_decode(outputs, skip_special_tokens=True)
 

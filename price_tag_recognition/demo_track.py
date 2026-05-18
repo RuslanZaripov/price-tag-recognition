@@ -21,13 +21,26 @@ from trackers.tracking_utils.timer import Timer
 
 def crop_quality(img):
     if img is None or img.size == 0:
-        return 0
+        return 0.0
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    sharpness = cv2.Laplacian(gray, cv2.CV_64F).var()
-    area = img.shape[0] * img.shape[1]
 
-    return sharpness * 0.7 + area * 0.3
+    # --- Sharpness (blur detection) ---
+    lap_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+    sharpness = np.tanh(lap_var / 500.0)  # normalize to ~0–1
+
+    # --- Contrast (useful additional signal) ---
+    contrast = gray.std() / 64.0  # normalize roughly to 0–1
+    contrast = np.clip(contrast, 0, 1)
+
+    # --- Area (normalized, optional) ---
+    h, w = gray.shape
+    area = (h * w) / (512 * 512)  # relative to reference size
+    area = min(area, 1.0)
+
+    # --- Final weighted score ---
+    score = 0.6 * sharpness + 0.3 * contrast + 0.1 * area
+    return float(score)
 
 
 class YOLOPredictor:
@@ -164,6 +177,7 @@ def imageflow_demo(predictor, args):
                     x1_, y1_, x2_, y2_ = map(int, [x1, y1, x2, y2])
                     crop = frame[y1_:y2_, x1_:x2_]
                     q = crop_quality(crop)
+                    
                     if tid not in best_crops or q > best_crops[tid][0]:
                         best_crops[tid] = (q, crop.copy())
 
@@ -198,6 +212,7 @@ def imageflow_demo(predictor, args):
     for tid, (_, crop) in best_crops.items():
         if crop is None:
             continue
+        
         if crop.shape[0] == 0 or crop.shape[1] == 0:
             continue
 
