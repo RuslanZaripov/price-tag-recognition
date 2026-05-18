@@ -18,6 +18,8 @@ from price_tag_recognition.utils.visualize import plot_tracking
 from trackers.ocsort_tracker.ocsort import OCSort
 from trackers.tracking_utils.timer import Timer
 
+from price_tag_recognition.undistort import DistortionCorrector, CAM_SETTINGS, CAM_DISTORT_COEFFS
+
 
 def crop_quality(img):
     if img is None or img.size == 0:
@@ -130,6 +132,8 @@ def imageflow_demo(predictor, args):
 
     best_crops = {}  # {id: (quality, crop)}
 
+    distCorrector = DistortionCorrector(CAM_SETTINGS, CAM_DISTORT_COEFFS)
+
     timer = Timer()
     frame_id = 0
 
@@ -142,6 +146,8 @@ def imageflow_demo(predictor, args):
         ret, frame = cap.read()
         if not ret:
             break
+
+        frame = distCorrector.undistort_frame(frame)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
