@@ -16,3 +16,7 @@ python price_tag_recognition/demo_track.py \
     --rotate \
     --use_byte
 ```
+
+## Sources
+
+- many thanks to CarlosMena01/QRCodeSeeker-ML and openfoodfacts/price-tag-extractor from huggingface
