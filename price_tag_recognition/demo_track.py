@@ -148,7 +148,7 @@ def imageflow_demo(predictor, args):
         if not ret:
             break
 
-        frame = distCorrector.undistort_frame(frame)
+        # frame = distCorrector.undistort_frame(frame)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -255,11 +255,20 @@ def parse_qr_code(frame):
         # Detect the QR code in the image
         qr_code_normal = detect_qr_code(frame)
 
+        if qr_code_normal is None:
+            raise ValueError("No QR code detected")
+
         # Extract the QR code
         qr_code = extract_qr_code(qr_code_normal)
 
+        if qr_code is None:
+            raise ValueError("QR code extraction failed")
+
         # Post processing
         output_qr = post_processing(qr_code)
+
+        if output_qr is None:
+            raise ValueError("QR code post-processing failed")
 
         # Decode the QR code using pyzbar
         decoder = cv2.QRCodeDetector()
